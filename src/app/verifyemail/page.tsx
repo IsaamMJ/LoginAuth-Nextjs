@@ -20,9 +20,12 @@ export default function VerifyEmailPage() {
         try {
             await axios.post("/api/users/verifyemail", { token });
             setVerified(true);
-        } catch (err: any) {
-            setError(true);
-            console.error(err.response?.data || "Unknown error occurred");
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                console.error(error.response?.data || "Unknown error occurred");
+            } else {
+                console.error("An unexpected error occurred", error);
+            }
         } finally {
             setLoading(false);
         }
