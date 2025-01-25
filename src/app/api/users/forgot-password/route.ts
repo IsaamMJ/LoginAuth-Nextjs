@@ -6,37 +6,47 @@ connect();
 
 export async function POST(request: NextRequest) {
   try {
-    const reqBody = await request.json();  // Read the body of the request
-    const { email } = reqBody;  // Destructure the email from the request body
+    // Parse the JSON body of the request
+    const reqBody = await request.json();
+    const { email } = reqBody;
 
-    // If no email is provided, return an error
+    // Validate email input
     if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Email is required" },
+        { status: 400 }
+      );
     }
 
-    console.log(reqBody);
+    console.log("Request Body:", reqBody);
 
     // Find user in the database by email
     const user = await User.findOne({ email });
 
-    // If user doesn't exist, return an error response
+    // If user does not exist, return an error response
     if (!user) {
-      return NextResponse.json({ error: "User does not exist" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User does not exist" },
+        { status: 404 }
+      );
     }
 
-    console.log("User exists");
+    console.log("User exists:", user);
 
-    // Send a response indicating that the user exists and should proceed to password reset
-    const response = NextResponse.json({
-      message: "User exists in our records! Please reset your password.",
-      success: true,
-      resetPassword: true,  // Flag to indicate that password reset is required
-    });
+    // Return success response with resetPassword flag
+    return NextResponse.json(
+      {
+        message: "User exists in our records! Please reset your password.",
+        success: true,
+        resetPassword: true,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error in POST /api/reset-password:", error);
 
-    return response; // Send the response back to the client
-
-  } catch (error: any) {
-    // Handle any errors and return a server error response
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    // Handle unexpected errors
+    const errorMessage = error instanceof Error ? error.message : "Server Error";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
