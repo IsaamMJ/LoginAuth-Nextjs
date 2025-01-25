@@ -26,13 +26,16 @@ export default function ForgotPassword() {
       setLoading(true);
       const response = await axios.post("/api/users/forgot-password", { email });
 
-      // If user exists, push to password reset page
       if (response.data.success) {
         toast.success(response.data.message || "Password reset link sent!");
-        router.push(`/passwordreset?email=${email}`);// Redirect to password reset page
+        router.push(`/passwordreset?email=${encodeURIComponent(email)}`); // Encode email for query string
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Something went wrong");
+    } catch (error: unknown) {
+      const errorMessage =
+        axios.isAxiosError(error) && error.response?.data?.error
+          ? error.response.data.error
+          : "Something went wrong";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -45,8 +48,11 @@ export default function ForgotPassword() {
           Forgot Password
         </h1>
         <hr className="mb-4" />
-        
-        <label className="block text-gray-700 font-bold mb-2" htmlFor="email">
+
+        <label
+          className="block text-gray-700 font-bold mb-2"
+          htmlFor="email"
+        >
           Enter your email
         </label>
         <input
@@ -60,7 +66,9 @@ export default function ForgotPassword() {
 
         <button
           onClick={handleForgotPassword}
-          className={`w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-300 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+          className={`w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition duration-300 ${
+            loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
           disabled={loading}
         >
           {loading ? "Processing..." : "Send Reset Link"}

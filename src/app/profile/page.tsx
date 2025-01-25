@@ -1,8 +1,7 @@
 "use client";
-import React, {useState} from "react";
+import React from "react";
 
 import Sidebar from "@/app/components/Sidebar"; // Use absolute path if needed
-
 
 export default function ProfilePage() {
     return (
